@@ -1,0 +1,16 @@
+---
+- name: '{{ user.username }} | Create user'
+  user:
+    name: '{{ user.username }}'
+    password: '{{ user.hash_password }}'
+    shell: '/bin/bash'
+    groups:
+      - sudo
+    append: true
+  no_log: true
+
+- name: '{{ user.username }} | Set authorized_key'
+  authorized_key:
+    user: '{{ user.username }}'
+    key: '{{ user.ssh_key }}'
+    state: present

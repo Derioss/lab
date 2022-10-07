@@ -1,0 +1,8 @@
+---
+- hosts: gitlab_servers
+  roles:
+    - {role: 'user', tags: ['user', 'never'], become: true} # ne se joue que quant il est spécifiquement appelé
+    - {role: 'docker', tags: ['docker'], become: true}
+    - {role: 'traefik', tags: ['traefik'], become: true}
+    - {role: 'gitlab_server', tags: ['gitlab_server'], become: true}
+

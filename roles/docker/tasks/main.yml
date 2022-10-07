@@ -1,0 +1,36 @@
+---
+- name: install packages for docker
+  ansible.builtin.apt:
+    name:
+      - '{{ docker_apt_package }}'
+      - python3-docker
+    state: present
+
+- name: enable service docker at system boot
+  ansible.builtin.systemd:
+    name: docker
+    enabled: 'yes'
+    masked: 'no'
+    daemon_reload: true
+
+- name: adduser to user group
+  ansible.builtin.user:
+    name: "{{ item.username }}"
+    group: docker
+  loop: "{{ user_admins }}"
+
+- name: configure docker
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload docker
+
+- name: set sysctl vm.max_map_count
+  ansible.builtin.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+  when: vm_max_map_count

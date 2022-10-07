@@ -1,0 +1,33 @@
+[accessLog]
+  filePath = "/dev/stdout"
+
+[log]
+  level = "ERROR"
+
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  watch = true
+  exposedByDefault = false
+
+[providers.file]
+  directory = "/etc/traefik/config"
+  watch = true
+
+[entryPoints]
+  [entryPoints.metrics]
+    address = ":8090"
+  [entryPoints.websecure]
+    address = ":443"
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.web.http.redirections]
+    [entryPoints.web.http.redirections.entryPoint]
+      to = "websecure"
+      scheme = "https"
+      permanent = "true"
+
+[api]
+  dashboard = true
+
+[metrics]
+  [metrics.prometheus]

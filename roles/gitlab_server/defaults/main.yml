@@ -1,0 +1,16 @@
+---
+gitlab_image_tag: latest
+gitlab_server_name:
+gitlab_pages_server_name:
+gitlab_services: []
+gitlab_base_dir: /opt/gitlab
+gitlab_data_dir: '{{ gitlab_base_dir }}/data'
+gitlab_backup_dir: '{{ gitlab_data_dir }}/backups'
+gitlab_logs_dir: '{{ gitlab_base_dir }}/logs'
+gitlab_conf_dir: '{{ gitlab_base_dir }}/conf'
+gitlab_bin_dir: '{{ gitlab_base_dir }}/bin'
+traefik_network: docker.local.fr
+
+# --- puma dir ---
+puma_conf_dir: /opt/gitlab/var/puma
+puma_conf_pid: '{{ puma_conf_dir}}/puma.pid'

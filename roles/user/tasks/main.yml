@@ -1,0 +1,21 @@
+---
+- name: Create admin users
+  include_tasks: create_user.yml
+  vars:
+    user: '{{ item }}'
+  loop: '{{ user_admins }}'
+  when: user_deploy_admin is defined
+
+- name: Create services users
+  include_tasks: create_service_user.yml
+  vars:
+    user: '{{ item }}'
+  loop: '{{ user_services }}'
+  when: user_deploy_services is defined
+
+- name: Remove Legacy personnal accounts
+  include_tasks: revoke_user.yml
+  vars:
+    user: '{{ item }}'
+  loop: '{{ user_torevoke }}'
+  when: user_torevoke is defined

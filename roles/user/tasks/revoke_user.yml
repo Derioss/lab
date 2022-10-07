@@ -1,0 +1,6 @@
+---
+- name: remove legacy personnal accounts
+  user:
+    name: '{{ user }}'
+    state: absent
+    remove: true

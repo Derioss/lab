@@ -1,0 +1,11 @@
+---
+ssh_pubkey_fmaury: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDVe6GEAgGrIl4tHXc5LXHRUDltzY/V46jkSl8yb5NjetMLrECvO1NDfMLIzLHXx0mR5ZRXV7Ru0/EMfWYUKY4UIiTIJtJa46o6EfcsyDx3vffc6Ud7YTrjU2L1LyGsJEtGM/ARsjWdXHgnvR0bKw+arroDge8uZvVM+Veh7U6X3DFWo9lFfd11PT7XJmFsPWTlmqKtSfz5+9GYwIIZJvxhT1BereaPDauKCJDNSbr865vgJvT6VTyQKEFArZ4D3C8/fog+eoIa8n60AlgDrWmSf0NNXFQI70yXtrZzJpOYZiidP9o3Ossvm3+6O/CtrGxiZ5DSD9JXKSK409zSsh7XyZzFsZ/VWsS86xVMzszrdTqJsFDCDLAHatF28/+rnqoJSopiaeJ2r2eTJaVvBp27Brdn5bfNjuTellMx+HwTovbW+2poc09Sh+315dbxYb/XaITdvectFa4hbmnAP5+8l7YDirhsvnxRWs9u73QwsSzOYtIj/Da9xRug+UmeKJB89uFO3EXLpUz5s2Nd3eGMJ1IAsvS1CiL2d6qqn9Ix4TDRToLw9IfbFycJJpMSCt3PYIfT+FJEqMGpPo1THX9wJL1Y1VOaJoYWx2nzmK1bUNjTOHsEU4lTNPn/11VS3JKFIA4mEA9cNN3cLNfNwN3HMu4/vs9yF+rWNMVOZsDLGw== fmaury'
+# hash de /etc/shadow
+hash_password_fmaury: '' # failli l'oublier celui la, ca reste crackable avec john et des racks de minages xD
+
+user_admins:
+  - username: fmaury
+    ssh_key: '{{ ssh_pubkey_fmaury }}'
+    hash_password: '{{ hash_password_fmaury }}'
+
+user_deploy_admin: true

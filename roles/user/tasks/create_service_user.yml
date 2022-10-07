@@ -1,0 +1,26 @@
+---
+- name: '{{ user.username }} | Create user'
+  user:
+    name: '{{ user.username }}'
+    password: "{{ user.hash_password | default('!') }}"
+    shell: '/bin/bash'
+    groups:
+      - sudo
+    append: true
+    state: present
+  no_log: true
+
+- name: '{{ user.username }} | Set authorized_key'
+  authorized_key:
+    user: '{{ user.username }}'
+    key: '{{ user.ssh_key }}'
+    state: present
+
+- name: '{{ user.username }} | Set private ssh key'
+  copy:
+    src: '{{ user.ssh_private_key }}'
+    dest: /home/{{ user.username }}/.ssh/id_rsa
+    owner: '{{ user.username }}'
+    group: '{{ user.username }}'
+    mode: '0600'
+  when: user_service_ssh_private_deploy | bool

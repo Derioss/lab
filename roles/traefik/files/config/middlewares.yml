@@ -1,0 +1,7 @@
+---
+http:
+  middlewares:
+    StagingHeader:
+      headers:
+        customRequestHeaders:
+          X-Is-Secure: "true"

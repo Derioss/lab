@@ -1,0 +1,72 @@
+---
+- name: Install packages
+  apt:
+    name:
+      - jq
+    state: present
+
+- name: Create directories
+  file:
+    path: '{{ item.path }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode  | default("0755") }}'
+    state: directory
+  loop:
+    - path: '{{ gitlab_base_dir }}'
+      mode: '0700'
+    - path: '{{ gitlab_data_dir }}'
+    - path: '{{ gitlab_conf_dir }}'
+      mode: '0775'
+    - path: '{{ gitlab_logs_dir }}'
+    - path: '{{ gitlab_bin_dir }}'
+
+- name: Gitlab - Container up
+  docker_container:
+    name: gitlab
+    image: 'gitlab/gitlab-ce:{{ gitlab_image_tag }}'
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - '{{ gitlab_conf_dir }}:/etc/gitlab'
+      - '{{ gitlab_logs_dir }}:/var/log/gitlab'
+      - '{{ gitlab_data_dir }}:/var/opt/gitlab'
+    network_mode: '{{ traefik_network }}'
+    networks:
+      - name: '{{ traefik_network }}'
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.gitlab.rule: 'Host(`gitlab.local.fr`)'
+      traefik.http.routers.gitlab.entrypoints: 'websecure'
+      traefik.http.services.gitlab.loadbalancer.server.port: '80'
+      traefik.http.routers.gitlab.tls: 'true'
+
+- name: Deploy gitlab config file
+  template:
+    src: gitlab.rb.j2
+    dest: '{{ gitlab_conf_dir }}/gitlab.rb'
+    owner: root
+    group: root
+    mode: '0400'
+  notify: reconfigure gitlab
+
+- name: Modify sysctl values
+  sysctl:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+    state: present
+  loop:
+    - name: net.core.somaxconn
+      value: 1024
+    - name: net.ipv4.tcp_max_syn_backlog
+      value: 1024
+    - name: vm.overcommit_memory
+      value: 1
+
+- name: Get initial root password for gitlab authent
+  command: docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
+  register: _password
+
+- name: Print password
+  debug:
+    msg: "{{ _password.stdout }}"

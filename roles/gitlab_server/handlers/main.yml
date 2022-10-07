@@ -1,0 +1,6 @@
+---
+- name: restart gitlab
+  command: docker exec gitlab gitlab-ctl restart
+
+- name: reconfigure gitlab
+  command: docker exec gitlab gitlab-ctl reconfigure

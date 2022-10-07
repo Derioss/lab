@@ -1,0 +1,47 @@
+{{ ansible_managed | comment }}
+
+external_url 'https://gitlab.local.fr'
+nginx['listen_port'] = 80
+nginx['listen_https'] = false
+nginx['redirect_http_to_https'] = false
+nginx['http2_enabled'] = false
+nginx['proxy_set_headers'] = {
+  "Host" => "$http_host",
+  "X-Real-IP" => "$remote_addr",
+  "X-Forwarded-For" => "$proxy_add_x_forwarded_for",
+  "X-Forwarded-Proto" => "https",
+  "X-Forwarded-Ssl" => "on"
+}
+nginx['real_ip_trusted_addresses'] = ['172.18.0.0/16']
+nginx['real_ip_header'] = 'X-Real-IP'
+nginx['real_ip_recursive'] = 'on'
+nginx['custom_gitlab_server_config'] = "\nlocation =/robots.txt { alias /etc/gitlab/robots.txt; }\n"
+
+letsencrypt['enable'] = false
+prometheus_monitoring['enable'] = false
+
+gitlab_rails['smtp_enable'] = false
+
+# gitlab_rails['gitlab_shell_ssh_port'] = 22222
+
+
+
+# --- Misc ---
+grafana['enable'] = false
+
+# --- Puma ---
+puma['enable'] = true
+puma['worker_processes'] = 2 # Nb core-1
+puma['worker_timeout'] = 60
+
+# Valeur par défaut conseiller 4
+puma['min_threads'] = 4 
+puma['max_threads'] = 4
+
+puma['per_worker_max_memory_mb'] = 1024
+
+puma['pidfile'] = '{{ puma_conf_pid }}'
+gitlab_rails['env'] = {
+   'GITLAB_RAILS_RACK_TIMEOUT' => 600
+ }
+

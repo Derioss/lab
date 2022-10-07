@@ -1,0 +1,18 @@
+{
+  "log-driver": "{{ docker_log_driver }}"
+{% if docker_shutdown_timeout is defined %}
+  ,"shutdown-timeout": {{ docker_shutdown_timeout }}
+{% endif %}
+{% if docker_live_restore == true %}
+  ,"live-restore": true
+{% endif %}
+  ,"log-opts": {
+{% if docker_log_driver == "syslog" %}
+     {% raw %}"tag": "{{.Name}}"{% endraw %}
+{% else %}
+     "max-size": "{{ docker_json_max_size }}",
+     "max-file": "{{ docker_json_max_file }}",
+     "compress": "{{ docker_json_compress }}"
+{% endif %}
+  }
+}

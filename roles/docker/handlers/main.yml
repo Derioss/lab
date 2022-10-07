@@ -1,0 +1,17 @@
+---
+- name: reload docker via systemd
+  # reload : set things like "live-restore"
+  ansible.builtin.systemd:
+    name: docker
+    state: reloaded
+  listen: reload docker
+
+- name: restart service docker
+  # then restart :
+  # - won't be disruptive with "live-restore"
+  # - necessary when changing "log-driver"
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+  when: docker_live_restore
+  listen: reload docker

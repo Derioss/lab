@@ -1,0 +1,10 @@
+---
+docker_log_driver: 'json-file'
+docker_live_restore: true
+docker_json_max_size: '300M'
+docker_json_max_file: '3'
+docker_json_compress: 'true'
+docker_apt_package: 'docker.io'
+vm_max_map_count: false
+# use docker default shutdown timeout by default
+# docker_shutdown_timeout:

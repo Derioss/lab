@@ -1,0 +1,5 @@
+---
+# user_admin:
+#   - username: bob
+#     ssh_key: bob_ssh_key
+#     hash_password: hash_password_bob

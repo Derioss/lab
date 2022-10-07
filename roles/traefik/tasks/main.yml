@@ -1,0 +1,81 @@
+---
+- name: '{{ traefik_user }} | Create user'
+  user:
+    name: '{{ traefik_user }}'
+    password: "{{ traefik_user.hash_password | default('!') }}"
+    shell: '/bin/bash'
+    append: true
+    state: present
+  no_log: true
+- name: Create docker network
+  docker_network:
+    name: '{{ item }}'
+  loop: '{{ traefik_dev_network }}'
+
+- name: Ensure /etc/certs exist
+  file:
+    path: '{{ item.path }}'
+    state: '{{ item.state }}'
+    owner: '{{ traefik_user }}'
+    group: '{{ traefik_user }}'
+    mode: '0755'
+  loop:
+    - {path: '/home/{{ traefik_user }}/config/traefik/etc/certs', state: directory}
+    - {path: '/home/{{ traefik_user }}/config/traefik/config', state: directory}
+
+- name: 'Copy cert on {{ inventory_hostname }}.'
+  copy:
+    src: 'files/{{ item }}'
+    dest: '/home/{{ traefik_user }}/config/traefik/{{ item }}'
+    owner: '{{ traefik_user }}'
+    group: '{{ traefik_user }}'
+    mode: '0740'
+  loop:
+    - etc/certs/local.fr.crt
+    - etc/certs/local.fr.key
+    - etc/certs/local.fr.key
+    - config/dynamic_conf.toml
+    - config/middlewares.yml
+    - traefik.toml
+
+- name: "Add network for container"
+  docker_network:
+    name: "{{ item }}"
+    ipam_config:
+      - subnet: '172.18.0.0/16'
+        gateway: 172.18.0.1
+  loop: "{{ traefik_dev_network }}"
+
+- name: Create traefik container
+  docker_container:
+    name: 'traefik'
+    image: 'traefik:{{ traefik_dev_version }}'
+    state: started
+    restart: true
+    restart_policy: on-failure
+    restart_retries: 3
+    purge_networks: true
+    networks_cli_compatible: false
+    networks:
+      - name: "{{ traefik_dev_network[0] }}"
+        ipv4_address: "172.18.0.2"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - '/home/{{ traefik_user }}/config/traefik/etc/certs/:/etc/certs:ro'
+      - '/home/{{ traefik_user }}/config/traefik/config:/etc/traefik/config:ro'
+      - '/home/{{ traefik_user }}/config/traefik/traefik.toml:/traefik.toml:ro'
+    labels:
+      traefik.http.routers.api.rule: 'Host(`traefik.local.fr`)'
+      traefik.http.routers.api.service: 'api@internal'
+      traefik.http.middlewares.auth.basicauth.users: 'admin:$apr1$YNIut6CR$IAtMZlvNBBMXe7cRNXDG0.'
+      traefik.http.routers.api.entrypoints: 'websecure'
+      traefik.http.routers.api.tls: 'true'
+      traefik.enable: 'true'
+    ports:
+      - '443:443'
+      - '8090:8090'
+      - '80:80'
+    log_driver: 'json-file'
+    log_opt:
+      max-size: '1m'
+      max-file: '10'
