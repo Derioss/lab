@@ -114,6 +114,31 @@ sudo coreos-installer install --insecure-ignition --ignition-url http://socket_a
 ## Je note qu'il est tjrs possible de relancer l'ignition sur une vm provisionné tant qu'elle n'est pas reboot.
 ```
 
+A ce stade, le plus rapide, est de réaliser l'ignition sur bootstrap et les master, effectuer le reboot.
+
+On vérifiera, sur la bootstrap l'avancé du process avec sachant qu'elle devrait reboot une fois.
+
+```
+journalctl -b -f -u release-image.service -u bootkube.service
+```
+
+Je note qu'il y a de forte probabilité que le démarrage de l'etcd (merde).
+
+```
+ sandbox-okd-bootstrap.lab.okd.local bootkube.sh[1224]: etcdctl failed. Retrying in 5 seconds...
+```
+
+
+Je rappelle que c'est podman qui démarre un pod etcl sur crio, pod qui provisionne les containers.
+
+Donc en cas, de problème, il supprimer le pod sur podman (pas crio)
+
+```
+sudo podman ps -a
+sudo podman rm -f <id>
+# On recommence la surveillance pour l'etcd, quant on voit qu'il commence a créer les fichier de conf de kube et démarrer les pods on est bon, on peut passer à la suite.
+```
+
 #### Installation de openshift
 
 Après, avoir lancé `openshift-install --dir=install_dir/ wait-for bootstrap-complete --log-level=info`
@@ -122,16 +147,6 @@ On pourra avoir l'état d'avancement sur la vm bootstrap
 
 ```
 journalctl -b -f  -u bootkube.service
-```
-
-Je note qu'il y a de forte probabilité que le démarrage de l'etcd (merde).
-
-Je rappelle que c'est podman qui démarre un pod etcl sur crio, pod qui provisionne les containers.
-
-Donc en cas, de problème, il supprimer le pod sur podman (pas crio)
-
-```
-sudo podman ps -a
 ```
 
 Une fois l'install terminé
