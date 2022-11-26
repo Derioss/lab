@@ -55,7 +55,7 @@ Une grosse partie de ce taff revient à un de mes collegues de travail.
 
 ## Mise en place d'OKD (work in progress)
 
->- Tout le monde sur mm datetime hein @ndiruggiero ! De plus, le repertoire d'install contient des fichier cachés qui contiennent les certificats donc ne pas oublier de tout clean avant chaque tentative d'install.
+>- De plus, le repertoire d'install contient des fichier cachés qui contiennent les certificats donc ne pas oublier de tout clean avant chaque tentative d'install.
 
 >- Les certificats sont valables 24 heures ! il faut faire absolument toute l'installation dans les 24 heures.
 
